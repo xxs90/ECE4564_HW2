@@ -5,8 +5,8 @@ import time
 import rmq
 
 # default ip and port
-repository_ip = '192.168.1.150'
-repository_port = 5672
+repository_ip = '192.168.56.1'
+repository_port = '5672'
 
 if len(sys.argv) == 5 and sys.argv[1] == '-rip' and sys.argv[3] == '-rport':
     repository_ip = sys.argv[2]
@@ -79,17 +79,27 @@ while True:
                   "<MONGODB FORMAT INFO>")
             print(information)
 
-            print("[Ctrl 06] – Produced message ", message, " on ",place, ": ", subject)
+            print("[Ctrl 06] – Produced message ", message, " on ", place, ": ", subject)
             channel.basic_publish(exchange=place, routing_key=subject, body=message)
 
         elif command == 'c':
-            def callback(ch, method, properties, body):
-                print("[Ctrl 07] – Consumed message ", body.decode(), " on ", place, ": ", subject)
-
-            #channel.basic_consume(callback, queue=subject, no_ack=True)
-            channel.basic_consume(queue=subject, on_message_callback=callback, auto_ack=True)
-            channel.start_consuming()
-
+            method_frame, header_frame, body = channel.basic_get(queue=subject)
+            if method_frame:
+                channel.basic_ack(delivery_tag=method_frame.delivery_tag)
+                msgid = "team_05$" + str((time.time()))
+                information = {
+                    "Action": command,
+                    "Place": place,
+                    "Msg_ID": msgid,
+                    "Subject": subject,
+                    "Message": str(body.decode())
+                }
+                database.utilization.insert_one(information)
+                print("[Ctrl 05] – Inserted command into MongoDB: ")
+                print(information)
+                print("[Ctrl 07] – Consumed message ", str(body.decode()), " on ", place, ": ", subject)
+            else:
+                print('No message in queue!')
         else:
             print("Invalid Command")
             print("[Ctrl 08] – Exiting")
