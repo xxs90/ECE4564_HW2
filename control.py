@@ -99,7 +99,7 @@ while True:
 
         elif command == 'c':
             def callback(ch, method, properties, body):
-                print("[Ctrl 07] – Consumed message ", body, " on ",
+                print("[Ctrl 07] – Consumed message ", body.decode(), " on ",
                       place, ": ", subject)
 
             channel.basic_consume(callback, queue=subject, no_ack=True)
