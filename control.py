@@ -47,7 +47,7 @@ channel.queue_bind(exchange="Library", queue="Noise", routing_key="Noise")
 channel.queue_bind(exchange="Library", queue="Seating", routing_key="Seating")
 channel.queue_bind(exchange="Library", queue="Wishes", routing_key="Wishes")
 
-print("[Ctrl 01] – Connecting to RabbitMQ instance on" + repository_ip + "with port" + repository_port)
+print("[Ctrl 01] – Connecting to RabbitMQ instance on " + repository_ip + " with port " + repository_port)
 print("[Ctrl 02] – Initialized Exchanges and Queues:")
 print(rmq.stats)
 print("[Ctrl 03] – Initialized MongoDB datastore")
@@ -58,6 +58,7 @@ while True:
                  "/ EXIT COMMAND>:")
     if data == 'exit':
         print("[Ctrl 08] – Exiting")
+        connection.close()
         exit()
     else:
         command = data.split(':')[0]
@@ -103,4 +104,5 @@ while True:
         else:
             print("Invalid Command")
             print("[Ctrl 08] – Exiting")
+            connection.close()
             exit()
